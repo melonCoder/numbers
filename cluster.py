@@ -1,12 +1,15 @@
 from numpy import *
 
 def projectionDist(k, j):
-    return k.T * j
+    return abs((k * j.T)[0, 0])
+
+def ecludDist(k, j):
+    return sqrt(sum(power(k - j, 2)))
 
 def randCent(dataSet, k):
     n = shape(dataSet)[1]
     centroids = mat(zeros((k, n)))
-    for j in range(dataSet[:, j]):
+    for j in range(n):
         minJ = min(dataSet[:, j])
         rangeJ = float(max(dataSet[:, j]) - minJ)
         centroids[:, j] = minJ + rangeJ * random.rand(k, 1)
@@ -14,7 +17,7 @@ def randCent(dataSet, k):
 
 def kMeans(dataSet, k, distMeas = projectionDist, createCent = randCent):
     m = shape(dataSet)[0]
-    clusterAssment = mat(zeros(m, 2))
+    clusterAssment = mat(zeros((m, 2)))
     centroids = createCent(dataSet, k)
     clusterChanged = True
     while clusterChanged:
@@ -30,9 +33,8 @@ def kMeans(dataSet, k, distMeas = projectionDist, createCent = randCent):
             if clusterAssment[i, 0] != minIndex:
                 clusterChanged = True
             clusterAssment[i, :] = minIndex, minDist**2
-        print(centroids)
         for cent in range(k):
-            ptsInClust = dataSet[nonzero(clusterAssment[:, 0].A==cent)[0]]
+            ptsInClust = dataSet[nonzero(clusterAssment[:, 0].A == cent)[0]]
             centroids[cent, :] = mean(ptsInClust, axis = 0)
 
     return centroids, clusterAssment
@@ -48,9 +50,11 @@ def biKmeans(dataSet, k, distMeas = projectionDist):
 
     while (len(centList) < k):
         lowestSSE = inf
-        for i in range(centList):
+        for i in range(len(centList)):
             ptsInCurrCluster = \
                     dataSet[nonzero(clusterAssment[:, 0].A == i)[0], :]
+            # if len(ptsInCurrCluster) == 0:
+            #     continue
             centroidMat, splitClustAss = \
                     kMeans(ptsInCurrCluster, 2, distMeas)
             sseSplit = sum(splitClustAss[:, 1])
@@ -62,8 +66,8 @@ def biKmeans(dataSet, k, distMeas = projectionDist):
                 bestNewCents = centroidMat
                 bestClustAss = splitClustAss.copy()
                 lowestSSE = sseNotSplit + sseSplit
-        bestClustAss[nonzero[bestClustAss[:, 0].A == 1][0], 0] = len(centList)
-        bestClustAss[nonzero[bestClustAss[:, 0].A == 0][0], 0] = bestCentToSplit
+        bestClustAss[nonzero(bestClustAss[:, 0].A == 1)[0], 0] = len(centList)
+        bestClustAss[nonzero(bestClustAss[:, 0].A == 0)[0], 0] = bestCentToSplit
 
         print('the bestCentToSplit is ',bestCentToSplit)
         print('the len of bestClustAss is ', len(bestClustAss))
@@ -71,4 +75,5 @@ def biKmeans(dataSet, k, distMeas = projectionDist):
         centList.append(bestNewCents[1, :])
         clusterAssment[nonzero(clusterAssment[:, 0].A == \
                 bestCentToSplit)[0], :]
+    print(centList)
     return mat(centList), clusterAssment

@@ -71,9 +71,8 @@ def biKmeans(dataSet, k, distMeas = projectionDist):
 
         print('the bestCentToSplit is ',bestCentToSplit)
         print('the len of bestClustAss is ', len(bestClustAss))
-        centList[bestCentToSplit] = bestNewCents[0, :]
-        centList.append(bestNewCents[1, :])
+        centList[bestCentToSplit] = bestNewCents[0, :].tolist()[0]
+        centList.append(bestNewCents[1, :].tolist()[0])
         clusterAssment[nonzero(clusterAssment[:, 0].A == \
-                bestCentToSplit)[0], :]
-    print(centList)
+                bestCentToSplit)[0], :] = bestClustAss
     return mat(centList), clusterAssment

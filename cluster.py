@@ -1,6 +1,7 @@
 from numpy import *
 
 def projectionDist(k, j):
+    print((k * j.T)[0, 0])
     return abs((k * j.T)[0, 0])
 
 def ecludDist(k, j):

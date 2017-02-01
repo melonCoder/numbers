@@ -77,3 +77,33 @@ def biKmeans(dataSet, k, distMeas = projectionDist):
         clusterAssment[nonzero(clusterAssment[:, 0].A == \
                 bestCentToSplit)[0], :] = bestClustAss
     return mat(centList), clusterAssment
+
+def calcDistribution(cheetsheet, classification, m = 10, n = 10):
+    distribution = mat(zeros((m, n)))
+    for i in range(len(classification.T)):
+        distribution[int(classification[0, i]), int(cheetsheet[0, i])] += 1
+    return distribution
+
+def calcObservedProbability(x, centList, distMeas = projectionDist):
+    dist = []
+    for i in range(len(centList)):
+        dist.append(distMeas(x, centList[i, :]))
+    m = min(dist)
+    pmin = 1.0 / sum([m / d for d in dist])
+    return [m / d * pmin for d in dist]
+
+def calcProbability(distribution, x, centList, distMeas = projectionDist):
+    PxiOnci = mat(zeros((10, 10)))
+    PciOnxi = mat(zeros((10, 10)))
+    for i in range(10):
+        numInci = sum(distribution[i, :])
+        for j in range(10):
+            PxiOnci[i, j] = float(distribution[i, j]) / numInci
+
+    for i in range(10):
+        numInxi = sum(distribution[:, i])
+        for j in range(10):
+            PciOnxi[j, i] = float(distribution[j, i]) / numInxi
+
+    Pci = calcObservedProbability(x, centList, distMeas)
+    return Pci * PxiOnci
